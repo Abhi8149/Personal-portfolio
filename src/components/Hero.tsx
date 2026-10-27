@@ -1,137 +1,138 @@
-import { useEffect, useState } from 'react';
-import { Rocket, Download, ArrowDown } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowDownRight, ArrowUpRight, Download, Github, Linkedin, MapPin, Youtube } from 'lucide-react';
+import { InteractiveNeuralCore } from './NeuralBackground';
+import { profile } from '../lib/data';
+
+const technologies = [
+  'Python',
+  'TypeScript',
+  'PyTorch',
+  'React',
+  'Next.js',
+  'React Native',
+  'LangChain',
+  'Node.js',
+  'MongoDB',
+  'PostgreSQL',
+];
+
+const socialLinks = [
+  { label: 'GitHub', href: profile.github, icon: Github },
+  { label: 'LinkedIn', href: profile.linkedin, icon: Linkedin },
+  { label: 'YouTube', href: profile.youtube, icon: Youtube },
+];
 
 export function Hero() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [typedIndex, setTypedIndex] = useState(0);
-  const typedWords = ['Ship', 'Deploy', 'Scale'];
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
-
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      setTypedIndex((prev) => (prev + 1) % typedWords.length);
-    }, 2200);
-
-    return () => window.clearInterval(interval);
-  }, []);
-
-  const scrollToProjects = () => {
-    const element = document.querySelector('#projects');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
-    <section id="home" className="min-h-screen flex items-center justify-center relative px-6 pt-20">
-      {/* Animated background gradient */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo/10 rounded-full blur-[128px] animate-pulse-slow" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple/10 rounded-full blur-[128px] animate-pulse-slow" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-cyan/10 rounded-full blur-[128px] animate-pulse-slow" style={{ animationDelay: '2s' }} />
+    <section id="home" className="hero-section">
+      <div className="container hero-layout">
+        <motion.div
+          className="hero-copy"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="hero-eyebrow">
+            <span className="status-dot" aria-hidden="true" />
+            AI/ML undergrad · Full-stack builder
+          </div>
+
+          <h1 className="hero-title">
+            <span>I build</span>
+            <span>intelligence</span>
+            <span className="text-acid">that ships.</span>
+          </h1>
+
+          <p className="hero-intro">
+            I&apos;m <strong>Abhinav Shivkumar Ovhal</strong> — an AI/ML student at NIT Kurukshetra
+            turning ambitious ideas into agents, machine-learning research, and useful products.
+          </p>
+
+          <div className="hero-actions">
+            <a href="#projects" className="btn-primary">
+              Explore selected work
+              <ArrowDownRight size={18} aria-hidden="true" />
+            </a>
+            <a href={profile.resume} download className="btn-secondary">
+              Download résumé
+              <Download size={17} aria-hidden="true" />
+            </a>
+          </div>
+
+          <div className="hero-social-row">
+            <span className="hero-social-row__label">
+              <MapPin size={14} aria-hidden="true" />
+              Kurukshetra, India
+            </span>
+            <span className="hero-social-row__divider" aria-hidden="true" />
+            <div className="flex items-center gap-1">
+              {socialLinks.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hero-social-link"
+                  aria-label={`${link.label} (opens in a new tab)`}
+                >
+                  <link.icon size={17} aria-hidden="true" />
+                </a>
+              ))}
+              <a
+                href={profile.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hero-inline-link"
+              >
+                @Abhi8149
+                <ArrowUpRight size={13} aria-hidden="true" />
+              </a>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="hero-visual"
+          initial={{ opacity: 0, scale: 0.96, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.85, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <InteractiveNeuralCore />
+        </motion.div>
       </div>
 
-      <div className="container mx-auto text-center relative z-10 max-w-5xl">
-        {/* Status badge */}
-        <div
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border border-indigo/30 bg-indigo/10 mb-8 transition-all duration-700 reveal ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
-        >
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-green" />
-          </span>
-          <span className="text-sm text-text-secondary">AI/ML @ NIT Kurukshetra</span>
+      <motion.dl
+        className="container hero-proof"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.65, delay: 0.35 }}
+      >
+        <div>
+          <dt>Public repositories</dt>
+          <dd>40<span>+</span></dd>
         </div>
-
-        {/* Main heading */}
-        <h1
-          className={`font-display font-bold text-5xl md:text-7xl lg:text-8xl mb-4 transition-all duration-700 delay-100 reveal ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          Hi, I'm <span className="text-gradient">Abhinav</span>
-        </h1>
-
-        {/* Subheading */}
-        <h2
-          className={`font-display font-semibold text-2xl md:text-4xl lg:text-5xl text-text-secondary mb-5 transition-all duration-700 delay-200 reveal ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          I build systems that <span className="text-gradient">ship</span>
-          <span className="font-mono text-cyan ml-2 text-lg md:text-2xl inline-block min-w-[85px] text-left">
-            {typedWords[typedIndex]}
-          </span>
-        </h2>
-
-        <div className="signal-line max-w-lg mx-auto mb-6" aria-hidden="true" />
-
-        {/* Description */}
-        <p
-          className={`text-lg md:text-xl text-text-secondary max-w-3xl mx-auto mb-8 transition-all duration-700 delay-300 reveal ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          I'm Abhinav Shivkumar, an AI/ML student who doesn't just study intelligent systems but builds them.
-          From neural networks to local networks, I turn ideas into products people can actually use.
-          <span className="text-text-primary"> I don't just design, I deploy.</span>
-        </p>
-
-        {/* Achievement badges */}
-        <div
-          className={`flex flex-wrap items-center justify-center gap-3 mb-12 transition-all duration-700 delay-400 reveal ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          <span className="badge badge-shipped">
-            <Rocket size={12} />
-            5+ Products Shipped
-          </span>
-          <span className="badge badge-live">
-            <span className="w-2 h-2 rounded-full bg-cyan animate-pulse" />
-            40+ GitHub Repos
-          </span>
-          <span className="badge badge-progress">
-            <span className="w-2 h-2 rounded-full bg-orange animate-pulse" />
-            9+ LLD Systems
-          </span>
+        <div>
+          <dt>DSA problems solved</dt>
+          <dd>500<span>+</span></dd>
         </div>
-
-        {/* CTA Buttons */}
-        <div
-          className={`flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-700 delay-500 reveal ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          <button onClick={scrollToProjects} className="btn-primary flex items-center gap-2">
-            Explore My Work
-            <ArrowDown size={18} />
-          </button>
-          <a
-            href="public/Machine_learning_and_deep_learning_resume.pdf"
-            download
-            className="btn-secondary flex items-center gap-2"
-          >
-            Download Resume
-            <Download size={18} />
-          </a>
+        <div>
+          <dt>Featured video builds</dt>
+          <dd>03</dd>
         </div>
+        <div>
+          <dt>B.Tech AI &amp; ML</dt>
+          <dd className="hero-proof__year">2027</dd>
+        </div>
+      </motion.dl>
 
-        {/* Scroll indicator */}
-        <div
-          className={`absolute bottom-8 left-1/2 -translate-x-1/2 transition-all duration-700 delay-700 ${
-            isVisible ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
-          <div className="flex flex-col items-center gap-2 text-text-muted animate-bounce">
-            {/* <span className="text-xs">Scroll to explore</span>
-            <ArrowDown size={20} /> */}
-          </div>
+      <div className="tech-ticker" aria-hidden="true">
+        <div className="tech-ticker__track">
+          {[...technologies, ...technologies].map((technology, index) => (
+            <span key={`${technology}-${index}`}>
+              {technology}
+              <i />
+            </span>
+          ))}
         </div>
       </div>
     </section>

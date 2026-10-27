@@ -1,330 +1,202 @@
-import { useEffect, useRef, useState } from 'react';
-import { Mail, Github, Linkedin, BookOpen, ExternalLink, Send } from 'lucide-react';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import {
+  ArrowUpRight,
+  BookOpen,
+  Check,
+  Copy,
+  Download,
+  Github,
+  Linkedin,
+  Mail,
+  Send,
+  Youtube,
+} from 'lucide-react';
+import { profile } from '../lib/data';
 
 const socialLinks = [
-  {
-    name: 'GitHub',
-    username: '@Abhi8149',
-    url: 'https://github.com/Abhi8149',
-    icon: Github,
-    color: 'hover:text-text-primary',
-    description: '40+ repositories of shipped products',
-  },
-  {
-    name: 'LinkedIn',
-    username: 'Abhinav Shivkumar',
-    url: 'https://linkedin.com/in/abhinav-shivkumar-a00b35290',
-    icon: Linkedin,
-    color: 'hover:text-[#0077b5]',
-    description: "Let's connect professionally",
-  },
-  {
-    name: 'Medium',
-    username: '@abhinavjyoti09',
-    url: 'https://medium.com/@abhinavjyoti09',
-    icon: BookOpen,
-    color: 'hover:text-[#00ab6c]',
-    description: 'Writing about AI and tech',
-  },
+  { name: 'GitHub', detail: '@Abhi8149', url: profile.github, icon: Github },
+  { name: 'LinkedIn', detail: 'Let’s connect', url: profile.linkedin, icon: Linkedin },
+  { name: 'Medium', detail: 'Notes on software', url: profile.medium, icon: BookOpen },
+  { name: 'YouTube', detail: 'Project walkthroughs', url: profile.youtube, icon: Youtube },
 ];
 
 export function Connect() {
   const formspreeEndpoint = import.meta.env.VITE_FORMSPREE_ENDPOINT;
-  const sectionRef = useRef<HTMLElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-  const [formState, setFormState] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-  });
+  const [formState, setFormState] = useState({ name: '', email: '', subject: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [submitMessage, setSubmitMessage] = useState('');
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(profile.email);
+      setCopyStatus('copied');
+      window.setTimeout(() => setCopyStatus('idle'), 2000);
+    } catch {
+      setCopyStatus('error');
     }
+  };
 
-    return () => observer.disconnect();
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setSubmitStatus('idle');
+    setSubmitMessage('');
 
     if (!formspreeEndpoint) {
-      setSubmitStatus('error');
-      setSubmitMessage('Form service is not configured yet. Please try again later.');
+      const subject = encodeURIComponent(formState.subject || 'Portfolio inquiry');
+      const body = encodeURIComponent(`${formState.message}\n\nFrom: ${formState.name}\nEmail: ${formState.email}`);
+      window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
+      setSubmitStatus('success');
+      setSubmitMessage('Opening your email app with this message pre-filled.');
       return;
     }
 
     setIsSubmitting(true);
-    setSubmitStatus('idle');
-    setSubmitMessage('');
-
     try {
       const response = await fetch(formspreeEndpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          name: formState.name,
-          email: formState.email,
-          subject: formState.subject,
-          message: formState.message,
-        }),
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(formState),
       });
-
-      if (!response.ok) {
-        throw new Error('Formspree request failed');
-      }
+      if (!response.ok) throw new Error('Message request failed');
 
       setSubmitStatus('success');
-      setSubmitMessage('Thanks! Your message was sent successfully.');
+      setSubmitMessage('Thanks — your message is on its way. I’ll get back to you soon.');
       setFormState({ name: '', email: '', subject: '', message: '' });
     } catch {
       setSubmitStatus('error');
-      setSubmitMessage('Message could not be sent. Please try again in a moment.');
+      setSubmitMessage(`The message could not be sent. Please email me directly at ${profile.email}.`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <section
-      ref={sectionRef}
-      id="connect"
-      className="min-h-screen py-24 md:py-32 px-6 relative"
-    >
-      <div className="container mx-auto">
-        {/* Section Header */}
-        <div
-          className={`text-center mb-16 transition-all duration-700 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
+    <section id="connect" className="section-pad connect-section">
+      <div className="container">
+        <motion.div
+          className="connect-heading"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.35 }}
         >
-          <h2 className="section-title mb-4">
-            The Best Code is Written <span className="text-gradient">Together</span>
-          </h2>
-          <p className="section-subtitle mx-auto">
-            Let's build something that matters
-          </p>
-        </div>
+          <span className="section-kicker">05 · Start a conversation</span>
+          <h2>Have a problem<br /><span>worth solving?</span></h2>
+          <p>I’m always interested in ambitious products, applied AI, and collaborations with curious people.</p>
+        </motion.div>
 
-        {/* Interest Cards */}
-        <div
-          className={`mb-12 transition-all duration-700 delay-100 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          <div className="card p-6 md:p-8 text-center">
-            <p className="text-lg text-text-primary mb-4">
-              I'm always interested in:
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              {[
-                'Collaborations on interesting problems',
-                'Real-world AI/ML challenges',
-                'Building products that matter',
-              ].map((interest) => (
-                <span
-                  key={interest}
-                  className="px-4 py-2 rounded-full bg-circuit border border-border-light text-text-secondary"
-                >
-                  {interest}
-                </span>
+        <div className="connect-grid">
+          <motion.div
+            className="connect-direct"
+            initial={{ opacity: 0, x: -22 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="direct-email-card">
+              <span className="direct-email-card__label"><Mail size={16} /> Direct line</span>
+              <a href={`mailto:${profile.email}`} className="direct-email-card__email">{profile.email}</a>
+              <p>The simplest way to reach me. No forms, no friction — just tell me what you’re thinking.</p>
+              <div className="direct-email-card__actions">
+                <a href={`mailto:${profile.email}`} className="btn-primary">Write an email <ArrowUpRight size={16} /></a>
+                <button type="button" className="btn-secondary" onClick={copyEmail}>
+                  {copyStatus === 'copied' ? <Check size={16} /> : <Copy size={16} />}
+                  {copyStatus === 'copied' ? 'Copied' : copyStatus === 'error' ? 'Copy unavailable' : 'Copy email'}
+                </button>
+              </div>
+            </div>
+
+            <div className="contact-social-grid">
+              {socialLinks.map((link) => (
+                <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer" className="contact-social-card">
+                  <link.icon size={20} />
+                  <span><strong>{link.name}</strong><small>{link.detail}</small></span>
+                  <ArrowUpRight size={15} />
+                </a>
               ))}
             </div>
-          </div>
-        </div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Contact Form */}
-          <div
-            className={`transition-all duration-700 delay-200 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
+            <a href={profile.resume} download className="contact-resume-link">
+              <span><Download size={17} /> Want the concise version?</span>
+              <strong>Download résumé <ArrowUpRight size={14} /></strong>
+            </a>
+          </motion.div>
+
+          <motion.div
+            className="contact-form-wrap"
+            initial={{ opacity: 0, x: 22 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.15 }}
           >
-            <div className="card p-6 md:p-8">
-              <h3 className="font-display font-semibold text-xl mb-6">
-                Write Something
-              </h3>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="name" className="block text-sm text-text-muted mb-2">
-                    Your Name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    required
-                    value={formState.name}
-                    onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                    className="input-field"
-                    placeholder="What should I call you?"
-                  />
+            <div className="contact-form__heading">
+              <span>OR SEND A NOTE HERE</span>
+              <span className="status-dot" aria-hidden="true" />
+            </div>
+            <form onSubmit={handleSubmit} className="contact-form">
+              <fieldset disabled={isSubmitting}>
+                <div className="form-row">
+                  <div className="form-field">
+                    <label htmlFor="contact-name">Your name</label>
+                    <input
+                      id="contact-name"
+                      type="text"
+                      required
+                      autoComplete="name"
+                      maxLength={80}
+                      value={formState.name}
+                      onChange={(event) => setFormState({ ...formState, name: event.target.value })}
+                      placeholder="Jane Smith"
+                    />
+                  </div>
+                  <div className="form-field">
+                    <label htmlFor="contact-email">Email address</label>
+                    <input
+                      id="contact-email"
+                      type="email"
+                      required
+                      autoComplete="email"
+                      maxLength={120}
+                      value={formState.email}
+                      onChange={(event) => setFormState({ ...formState, email: event.target.value })}
+                      placeholder="jane@company.com"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label htmlFor="email" className="block text-sm text-text-muted mb-2">
-                    Email Address
-                  </label>
+                <div className="form-field">
+                  <label htmlFor="contact-subject">What’s this about?</label>
                   <input
-                    type="email"
-                    id="email"
-                    required
-                    value={formState.email}
-                    onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                    className="input-field"
-                    placeholder="your.email@example.com"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="subject" className="block text-sm text-text-muted mb-2">
-                    Subject
-                  </label>
-                  <input
+                    id="contact-subject"
                     type="text"
-                    id="subject"
                     required
+                    maxLength={140}
                     value={formState.subject}
-                    onChange={(e) => setFormState({ ...formState, subject: e.target.value })}
-                    className="input-field"
-                    placeholder="Collaboration, internship, product idea..."
+                    onChange={(event) => setFormState({ ...formState, subject: event.target.value })}
+                    placeholder="A project, role, research idea..."
                   />
                 </div>
-                <div>
-                  <label htmlFor="message" className="block text-sm text-text-muted mb-2">
-                    Your Message
-                  </label>
+                <div className="form-field">
+                  <label htmlFor="contact-message">Your message</label>
                   <textarea
-                    id="message"
+                    id="contact-message"
                     required
                     rows={5}
+                    maxLength={3000}
                     value={formState.message}
-                    onChange={(e) => setFormState({ ...formState, message: e.target.value })}
-                    className="input-field resize-none"
-                    placeholder="What's on your mind? A project idea? A collaboration? Or just want to say hi?"
+                    onChange={(event) => setFormState({ ...formState, message: event.target.value })}
+                    placeholder="A little context goes a long way..."
                   />
                 </div>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send size={18} />
-                      Send Message
-                    </>
-                  )}
+                <button type="submit" className="btn-primary contact-form__submit" aria-busy={isSubmitting}>
+                  {isSubmitting ? <span className="form-spinner" aria-hidden="true" /> : <Send size={16} />}
+                  {isSubmitting ? 'Sending...' : 'Send inquiry'}
                 </button>
-                {submitStatus !== 'idle' && (
-                  <p
-                    className={`text-sm ${
-                      submitStatus === 'success' ? 'text-[#00ab6c]' : 'text-rose-400'
-                    }`}
-                  >
-                    {submitMessage}
-                  </p>
-                )}
-              </form>
-            </div>
-          </div>
-
-          {/* Social Links */}
-          <div
-            className={`space-y-4 transition-all duration-700 delay-300 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            {socialLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="card flex items-center gap-4 group hover:border-indigo/50"
-              >
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo/20 to-purple/20 flex items-center justify-center flex-shrink-0 group-hover:from-indigo/30 group-hover:to-purple/30 transition-all">
-                  <link.icon
-                    size={28}
-                    className={`text-text-secondary ${link.color} transition-colors`}
-                  />
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-display font-semibold mb-1 group-hover:text-indigo transition-colors">
-                    {link.name}
-                  </h4>
-                  <p className="text-sm text-text-secondary">{link.description}</p>
-                  <p className="text-xs text-text-muted">{link.username}</p>
-                </div>
-                <ExternalLink
-                  size={18}
-                  className="text-text-muted group-hover:text-indigo transition-colors"
-                />
-              </a>
-            ))}
-
-            {/* Email */}
-            <a
-              href="mailto:abhinavshivkumar03@gmail.com"
-              className="card flex items-center gap-4 group hover:border-indigo/50"
-            >
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo/20 to-purple/20 flex items-center justify-center flex-shrink-0 group-hover:from-indigo/30 group-hover:to-purple/30 transition-all">
-                <Mail size={28} className="text-text-secondary group-hover:text-indigo transition-colors" />
-              </div>
-              <div className="flex-1">
-                <h4 className="font-display font-semibold mb-1 group-hover:text-indigo transition-colors">
-                  Email
-                </h4>
-                <p className="text-sm text-text-secondary">Direct and personal</p>
-                <p className="text-xs text-text-muted">abhinavshivkumar03@gmail.com</p>
-              </div>
-              <ExternalLink
-                size={18}
-                className="text-text-muted group-hover:text-indigo transition-colors"
-              />
-            </a>
-
-            {/* External Presence */}
-            <div className="card p-6 text-center">
-              <p className="text-text-secondary mb-4">Also find me on</p>
-              <div className="flex justify-center gap-4">
-                <a
-                  href="https://codolio.com/profile/zujIx7WJ"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-lg bg-circuit hover:bg-indigo/20 text-text-secondary hover:text-indigo transition-colors text-sm font-mono"
-                >
-                  Codolio
-                </a>
-                <a
-                  href="public/Machine_learning_and_deep_learning_resume.pdf"
-                  download
-                  className="px-4 py-2 rounded-lg bg-circuit hover:bg-indigo/20 text-text-secondary hover:text-indigo transition-colors text-sm font-mono"
-                >
-                  Resume
-                </a>
-              </div>
-            </div>
-          </div>
+              </fieldset>
+              <p className={`form-status form-status--${submitStatus}`} role="status" aria-live="polite">
+                {submitMessage}
+              </p>
+            </form>
+          </motion.div>
         </div>
       </div>
     </section>

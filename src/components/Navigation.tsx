@@ -1,228 +1,199 @@
-import { useState, useEffect } from 'react';
-import { Menu, X, Github, Linkedin, Mail, BookOpen } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowUpRight, Github, Linkedin, Menu, X, Youtube } from 'lucide-react';
+import { profile } from '../lib/data';
 
 const navLinks = [
+  { href: '#projects', label: 'Work' },
   { href: '#about', label: 'About' },
-  { href: '#projects', label: 'Projects' },
-  { href: '#ai', label: 'AI/ML' },
+  { href: '#ai', label: 'AI / ML' },
   { href: '#systems', label: 'Systems' },
 ];
+
+const sectionHrefs = ['#home', ...navLinks.map((link) => link.href), '#connect'];
 
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeHref, setActiveHref] = useState('#about');
+  const [activeHref, setActiveHref] = useState('#home');
   const [scrollProgress, setScrollProgress] = useState(0);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const firstMobileLinkRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-
+    let frame = 0;
+    const updateScrollState = () => {
+      frame = 0;
+      setIsScrolled(window.scrollY > 24);
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = maxScroll > 0 ? (window.scrollY / maxScroll) * 100 : 0;
-      setScrollProgress(Math.min(100, Math.max(0, progress)));
+      setScrollProgress(maxScroll > 0 ? Math.min(100, (window.scrollY / maxScroll) * 100) : 0);
+
+      const readingPosition = window.scrollY + window.innerHeight * 0.35;
+      let currentSection = '#home';
+      sectionHrefs.forEach((href) => {
+        const section = document.querySelector<HTMLElement>(href);
+        if (section && section.offsetTop <= readingPosition) currentSection = href;
+      });
+      setActiveHref(currentSection);
+    };
+    const handleScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateScrollState);
     };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveHref(`#${entry.target.id}`);
-          }
-        });
-      },
-      { threshold: 0.45 }
-    );
-
-    navLinks.forEach((link) => {
-      const el = document.querySelector(link.href);
-      if (el) observer.observe(el);
-    });
-
-    window.addEventListener('scroll', handleScroll);
-    handleScroll();
-
+    updateScrollState();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll);
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      observer.disconnect();
+      window.removeEventListener('resize', handleScroll);
+      if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);
 
-  const scrollToSection = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-    setIsMobileMenuOpen(false);
-  };
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    firstMobileLinkRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMobileMenuOpen(false);
+        menuButtonRef.current?.focus();
+        return;
+      }
+
+      if (event.key === 'Tab') {
+        const menu = document.getElementById('mobile-navigation');
+        const menuItems = Array.from(
+          menu?.querySelectorAll<HTMLElement>('a[href], button:not([disabled])') ?? [],
+        );
+        const menuButton = menuButtonRef.current;
+        const lastItem = menuItems[menuItems.length - 1];
+        if (!menuButton || !lastItem) return;
+
+        if (event.shiftKey && document.activeElement === menuButton) {
+          event.preventDefault();
+          lastItem.focus();
+        } else if (!event.shiftKey && document.activeElement === lastItem) {
+          event.preventDefault();
+          menuButton.focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isMobileMenuOpen]);
+
+  useEffect(() => {
+    const desktopQuery = window.matchMedia('(min-width: 768px)');
+    const closeOnDesktop = () => {
+      if (desktopQuery.matches) setIsMobileMenuOpen(false);
+    };
+    desktopQuery.addEventListener('change', closeOnDesktop);
+    return () => desktopQuery.removeEventListener('change', closeOnDesktop);
+  }, []);
 
   return (
     <>
-      <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'glass py-3' : 'py-5'
-        }`}
-      >
-        <div
-          className="absolute left-0 top-0 h-[2px] bg-gradient-primary transition-all duration-200"
-          style={{ width: `${scrollProgress}%` }}
-          aria-hidden="true"
-        />
-
-        <div className="container mx-auto px-6 flex items-center justify-between">
-          {/* Logo */}
-          <a
-            href="#"
-            className="flex items-center gap-3 group"
-            onClick={(e) => {
-              e.preventDefault();
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-          >
-            <div className="relative w-10 h-10">
-              <svg viewBox="0 0 100 100" className="w-full h-full">
-                <circle cx="50" cy="50" r="40" fill="#6366f1" className="group-hover:fill-purple transition-colors" />
-                <circle cx="35" cy="40" r="8" fill="#06b6d4" />
-                <circle cx="65" cy="40" r="8" fill="#06b6d4" />
-                <circle cx="50" cy="65" r="8" fill="#06b6d4" />
-                <line x1="35" y1="40" x2="65" y2="40" stroke="#8b5cf6" strokeWidth="3" />
-                <line x1="35" y1="40" x2="50" y2="65" stroke="#8b5cf6" strokeWidth="3" />
-                <line x1="65" y1="40" x2="50" y2="65" stroke="#8b5cf6" strokeWidth="3" />
-              </svg>
-            </div>
-            <span className="font-display font-semibold text-lg text-text-primary hidden sm:block">
-              Abhinav
-            </span>
+      <header className={`site-header ${isScrolled ? 'is-scrolled' : ''}`}>
+        <div className="scroll-progress" style={{ width: `${scrollProgress}%` }} aria-hidden="true" />
+        <nav className="container nav-shell" aria-label="Main navigation">
+          <a href="#home" className="site-logo" onClick={() => setIsMobileMenuOpen(false)} aria-label="Abhinav — back to top">
+            <span className="site-logo__mark">AS</span>
+            <span className="site-logo__text">ABHINAV<span>/</span></span>
           </a>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="desktop-nav">
             {navLinks.map((link) => (
-              <button
+              <a
                 key={link.href}
-                onClick={() => scrollToSection(link.href)}
-                className={`nav-link relative hover:text-indigo transition-colors ${
-                  activeHref === link.href ? 'text-text-primary' : ''
-                }`}
+                href={link.href}
+                className={activeHref === link.href ? 'is-active' : ''}
+                aria-current={activeHref === link.href ? 'location' : undefined}
               >
                 {link.label}
-                <span
-                  className={`absolute -bottom-2 left-0 h-[2px] bg-gradient-primary transition-all duration-300 ${
-                    activeHref === link.href ? 'w-full opacity-100' : 'w-0 opacity-0'
-                  }`}
-                />
-              </button>
+              </a>
             ))}
           </div>
 
-          {/* Desktop Social Links */}
-          <div className="hidden md:flex items-center gap-4">
-            <a
-              href="https://github.com/Abhi8149"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-text-secondary hover:text-indigo transition-colors"
-              aria-label="GitHub"
-            >
-              <Github size={20} />
+          <div className="desktop-actions">
+            <a href={profile.github} target="_blank" rel="noopener noreferrer" className="nav-icon-link" aria-label="GitHub (opens in a new tab)">
+              <Github size={18} />
             </a>
-            <a
-              href="https://linkedin.com/in/abhinav-shivkumar-a00b35290"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-text-secondary hover:text-indigo transition-colors"
-              aria-label="LinkedIn"
-            >
-              <Linkedin size={20} />
-            </a>
-            <a
-              href="https://medium.com/@abhinavjyoti09"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-text-secondary hover:text-indigo transition-colors"
-              aria-label="Medium"
-            >
-              <BookOpen size={20} />
-            </a>
-            <button
-              onClick={() => scrollToSection('#connect')}
-              className="btn-primary text-sm"
-            >
-              Let's Build
-            </button>
+            <a href="#connect" className="nav-cta">Let&apos;s talk <ArrowUpRight size={15} /></a>
           </div>
 
-          {/* Mobile Menu Button */}
           <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden text-text-primary p-2"
-            aria-label="Toggle menu"
+            ref={menuButtonRef}
+            type="button"
+            className="mobile-menu-button"
+            onClick={() => setIsMobileMenuOpen((open) => !open)}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-navigation"
+            aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
           >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
-        </div>
-      </nav>
+        </nav>
+      </header>
 
-      {/* Mobile Menu */}
-      <div
-        className={`fixed inset-0 z-40 bg-void/95 backdrop-blur-lg md:hidden transition-transform duration-300 ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        <div className="flex flex-col items-center justify-center h-full gap-8">
-          {navLinks.map((link) => (
-            <button
-              key={link.href}
-              onClick={() => scrollToSection(link.href)}
-              className={`text-2xl font-display font-semibold transition-colors ${
-                activeHref === link.href ? 'text-indigo' : 'text-text-primary hover:text-indigo'
-              }`}
-            >
-              {link.label}
-            </button>
-          ))}
-
-          <button
-            onClick={() => scrollToSection('#connect')}
-            className="btn-primary mt-2"
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            id="mobile-navigation"
+            className="mobile-menu"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
           >
-            Let's Build Together
-          </button>
-
-          <div className="flex items-center gap-6 mt-8">
-            <a
-              href="https://github.com/Abhi8149"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-text-secondary hover:text-indigo transition-colors"
-            >
-              <Github size={24} />
-            </a>
-            <a
-              href="https://linkedin.com/in/abhinav-shivkumar-a00b35290"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-text-secondary hover:text-indigo transition-colors"
-            >
-              <Linkedin size={24} />
-            </a>
-            <a
-              href="https://medium.com/@abhinavjyoti09"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-text-secondary hover:text-indigo transition-colors"
-            >
-              <BookOpen size={24} />
-            </a>
-            <a
-              href="mailto:abhinavshivkumar03@gmail.com"
-              className="text-text-secondary hover:text-indigo transition-colors"
-            >
-              <Mail size={24} />
-            </a>
-          </div>
-        </div>
-      </div>
+            <div className="mobile-menu__inner">
+              <span className="section-kicker">Navigate the portfolio</span>
+              <div className="mobile-menu__links">
+                {navLinks.map((link, index) => (
+                  <motion.a
+                    key={link.href}
+                    ref={index === 0 ? firstMobileLinkRef : undefined}
+                    href={link.href}
+                    className={activeHref === link.href ? 'is-active' : ''}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05 + index * 0.04 }}
+                  >
+                    <span>0{index + 1}</span>
+                    {link.label}
+                    <ArrowUpRight size={20} />
+                  </motion.a>
+                ))}
+                <motion.a
+                  href="#connect"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.23 }}
+                >
+                  <span>05</span>
+                  Contact
+                  <ArrowUpRight size={20} />
+                </motion.a>
+              </div>
+              <div className="mobile-menu__footer">
+                <p>AI/ML @ NIT Kurukshetra · Class of 2027</p>
+                <div>
+                  <a href={profile.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub"><Github size={20} /></a>
+                  <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><Linkedin size={20} /></a>
+                  <a href={profile.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube"><Youtube size={20} /></a>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

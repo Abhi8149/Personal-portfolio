@@ -1,5 +1,7 @@
 # Abhinav Shivkumar Portfolio — Specification
 
+> **2026 implementation refresh:** The site is implemented with React + TypeScript + Vite (not Next.js). It retains the Neural Execution concept while introducing an acid-lime accent, an interactive Canvas 3D hero, three click-to-play YouTube case studies, native accessible dialogs, and a touch-first responsive layout. See the PRD refresh note for the corrected project stacks.
+
 ## 1. Concept & Vision
 
 A portfolio that feels like exploring a neural network — nodes connecting, signals flowing, systems thinking made visible. This isn't a resume converted to HTML. It's a living demonstration of how Abhinav thinks: interconnected, systematic, and always moving toward execution. The portfolio is proof that he builds things, not just designs them.

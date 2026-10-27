@@ -2,6 +2,8 @@
 
 ## Neural. Executable. Undeniable.
 
+> **2026 experience refresh:** This implementation uses React, TypeScript, Vite, Tailwind CSS, Framer Motion, and a lightweight custom Canvas 3D renderer. The refreshed experience leads with three video-backed case studies: AbhiClaw/OpenClaw, Ethereum phishing detection, and Availo. Videos use click-to-play YouTube privacy-enhanced embeds. The hero includes an interactive 3D systems core with drag/touch rotation, keyboard controls, visualization modes, zoom, pause, and reset. The visual system uses deep ink, acid lime, violet, and cyan with accessible contrast and reduced-motion fallbacks. Availo's verified implementation is React Native/Expo with Convex and Clerk; OpenClaw is TypeScript/Bun; Ethereum uses PyTorch, Streamlit, scikit-learn, and Etherscan. These decisions supersede conflicting implementation details below.
+
 ---
 
 # 1. Executive Summary
