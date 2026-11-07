@@ -9,6 +9,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { aiProjects, type AIProject } from '../lib/data';
+import { Tilt } from './fx/interactive';
 
 function ResearchGraph() {
   const inputNodes = [
@@ -86,8 +87,9 @@ function AICard({ project, index }: { project: AIProject; index: number }) {
   const Icon = project.id === 'ai-image-detection' ? Eye : project.id === 'rag-chat' ? MessageSquare : Sparkles;
 
   return (
+    <Tilt max={7} className="tilt-full">
     <motion.article
-      className="ai-lab-card"
+      className="ai-lab-card tilt-inner-full"
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.18 }}
@@ -113,6 +115,7 @@ function AICard({ project, index }: { project: AIProject; index: number }) {
         {project.tech.map((technology) => <span key={technology}>{technology}</span>)}
       </div>
     </motion.article>
+    </Tilt>
   );
 }
 

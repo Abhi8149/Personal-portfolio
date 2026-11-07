@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowUpRight, Github, Linkedin, Menu, X, Youtube } from 'lucide-react';
+import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
+import { ArrowUpRight, Command, Github, Linkedin, Menu, X, Youtube } from 'lucide-react';
 import { profile } from '../lib/data';
+import { Magnetic } from './fx/interactive';
 
 const navLinks = [
   { href: '#projects', label: 'Work' },
@@ -16,7 +17,8 @@ export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeHref, setActiveHref] = useState('#home');
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const { scrollYProgress } = useScroll();
+  const scrollProgress = useSpring(scrollYProgress, { stiffness: 90, damping: 22, mass: 0.4 });
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const firstMobileLinkRef = useRef<HTMLAnchorElement>(null);
 
@@ -25,8 +27,6 @@ export function Navigation() {
     const updateScrollState = () => {
       frame = 0;
       setIsScrolled(window.scrollY > 24);
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      setScrollProgress(maxScroll > 0 ? Math.min(100, (window.scrollY / maxScroll) * 100) : 0);
 
       const readingPosition = window.scrollY + window.innerHeight * 0.35;
       let currentSection = '#home';
@@ -100,7 +100,7 @@ export function Navigation() {
   return (
     <>
       <header className={`site-header ${isScrolled ? 'is-scrolled' : ''}`}>
-        <div className="scroll-progress" style={{ width: `${scrollProgress}%` }} aria-hidden="true" />
+        <motion.div className="scroll-progress-motion" style={{ scaleX: scrollProgress }} aria-hidden="true" />
         <nav className="container nav-shell" aria-label="Main navigation">
           <a href="#home" className="site-logo" onClick={() => setIsMobileMenuOpen(false)} aria-label="Abhinav — back to top">
             <span className="site-logo__mark">AS</span>
@@ -115,16 +115,40 @@ export function Navigation() {
                 className={activeHref === link.href ? 'is-active' : ''}
                 aria-current={activeHref === link.href ? 'location' : undefined}
               >
-                {link.label}
+                {activeHref === link.href && (
+                  <motion.span
+                    className="nav-pill"
+                    layoutId="nav-active-pill"
+                    transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                    aria-hidden="true"
+                  />
+                )}
+                <span className="nav-link-label">{link.label}</span>
               </a>
             ))}
           </div>
 
           <div className="desktop-actions">
+            <button
+              type="button"
+              className="cmdk-trigger"
+              onClick={() => window.dispatchEvent(new Event('open-command-palette'))}
+              aria-label="Open command palette (Control K)"
+            >
+              <Command size={14} /> <span>⌘K</span>
+            </button>
             <a href={profile.github} target="_blank" rel="noopener noreferrer" className="nav-icon-link" aria-label="GitHub (opens in a new tab)">
               <Github size={18} />
             </a>
-            <a href="#connect" className="nav-cta">Let&apos;s talk <ArrowUpRight size={15} /></a>
+            <Magnetic strength={0.25}>
+              <a href="#connect" className="nav-cta">
+                <span className="nav-avatar">
+                  <img src={profile.photo} alt="" width={28} height={28} loading="lazy" />
+                  <i aria-hidden="true" />
+                </span>
+                Let&apos;s talk <ArrowUpRight size={15} />
+              </a>
+            </Magnetic>
           </div>
 
           <button

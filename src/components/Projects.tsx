@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import {
   ArrowUpRight,
   Check,
@@ -11,6 +11,7 @@ import {
   Youtube,
 } from 'lucide-react';
 import { profile, projects, type Project } from '../lib/data';
+import { Magnetic, Tilt } from './fx/interactive';
 
 const projectTypes: Record<string, string> = {
   abhiclaw: 'Agentic AI',
@@ -113,18 +114,24 @@ function VideoDialog({ project, onClose }: { project: Project | null; onClose: (
 
 function ProjectMedia({ project, index, onPlay }: { project: Project; index: number; onPlay: () => void }) {
   const thumbnail = `https://i.ytimg.com/vi/${project.videoId}/maxresdefault.jpg`;
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: mediaRef, offset: ['start end', 'end start'] });
+  const imgY = useTransform(scrollYProgress, [0, 1], ['-6%', '6%']);
 
   return (
-    <div className="project-media-column">
+    <div className="project-media-column" ref={mediaRef}>
+      <Tilt max={5} scale={1.01}>
       <button
         type="button"
         className="project-media"
         onClick={onPlay}
         aria-label={`Play ${project.videoTitle}`}
+        data-cursor="Play"
       >
-        <img
+        <motion.img
           src={thumbnail}
           alt=""
+          style={{ y: imgY, scale: 1.14 }}
           loading={index === 0 ? 'eager' : 'lazy'}
           onError={(event) => {
             const fallback = `https://i.ytimg.com/vi/${project.videoId}/hqdefault.jpg`;
@@ -142,6 +149,7 @@ function ProjectMedia({ project, index, onPlay }: { project: Project; index: num
         </span>
         <span className="project-media__number" aria-hidden="true">0{index + 1}</span>
       </button>
+      </Tilt>
       {project.metric && (
         <div className="project-media__metric">
           <span className="status-dot" aria-hidden="true" />
@@ -198,10 +206,10 @@ function FeaturedProject({
         </div>
 
         <div className="project-actions">
-          <button type="button" className="btn-primary" onClick={onPlay}>
+          <Magnetic strength={0.25}><button type="button" className="btn-primary btn-shine" onClick={onPlay}>
             <Play size={16} fill="currentColor" />
             Watch demo
-          </button>
+          </button></Magnetic>
           {project.github && (
             <a href={project.github} target="_blank" rel="noopener noreferrer" className="project-text-link">
               <Github size={17} />
@@ -231,8 +239,9 @@ function FeaturedProject({
 
 function WorkshopCard({ project, index }: { project: Project; index: number }) {
   return (
+    <Tilt max={7} className="tilt-full">
     <motion.article
-      className="workshop-card"
+      className="workshop-card tilt-inner-full"
       initial={{ opacity: 0, y: 22 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
@@ -259,6 +268,7 @@ function WorkshopCard({ project, index }: { project: Project; index: number }) {
         {project.tech.slice(0, 3).map((technology) => <span key={technology}>{technology}</span>)}
       </div>
     </motion.article>
+    </Tilt>
   );
 }
 

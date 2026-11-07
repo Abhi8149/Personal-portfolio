@@ -14,6 +14,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import { profile, skills, systemProjects } from '../lib/data';
+import { Tilt } from './fx/interactive';
 
 const skillLabels: Record<keyof typeof skills, string> = {
   languages: 'Languages',
@@ -138,9 +139,9 @@ export function Systems() {
           {(Object.keys(skills) as (keyof typeof skills)[]).map((category, index) => {
             const Icon = skillIcons[index];
             return (
+              <Tilt key={category} max={7} className="tilt-full">
               <motion.article
-                key={category}
-                className="skill-card"
+                className="skill-card tilt-inner-full"
                 initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.25 }}
@@ -151,6 +152,7 @@ export function Systems() {
                   {skills[category].map((skill) => <span key={skill}>{skill}</span>)}
                 </div>
               </motion.article>
+              </Tilt>
             );
           })}
         </div>

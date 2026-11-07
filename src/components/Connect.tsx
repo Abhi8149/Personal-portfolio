@@ -85,6 +85,22 @@ export function Connect() {
           <span className="section-kicker">05 · Start a conversation</span>
           <h2>Have a problem<br /><span>worth solving?</span></h2>
           <p>I’m always interested in ambitious products, applied AI, and collaborations with curious people.</p>
+          <motion.div
+            className="connect-person"
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.6 }}
+            transition={{ duration: 0.55, delay: 0.12 }}
+          >
+            <img src={profile.photo} alt={profile.photoAlt} width={1502} height={1600} loading="lazy" />
+            <div>
+              <strong>{profile.name}</strong>
+              <span><i aria-hidden="true" /> Available now · Replies within 24 hours · Referrals welcome</span>
+            </div>
+            <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="btn-secondary connect-person__cta">
+              Connect on LinkedIn <ArrowUpRight size={15} />
+            </a>
+          </motion.div>
         </motion.div>
 
         <div className="connect-grid">

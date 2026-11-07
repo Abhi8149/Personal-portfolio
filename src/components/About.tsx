@@ -2,13 +2,17 @@ import { motion } from 'framer-motion';
 import {
   ArrowUpRight,
   BookOpen,
+  Brain,
   Code2,
   Download,
   Gamepad2,
   GraduationCap,
   PenTool,
+  Rocket,
+  Workflow,
 } from 'lucide-react';
 import { profile } from '../lib/data';
+import { Tilt } from './fx/interactive';
 
 const interests = [
   {
@@ -49,20 +53,41 @@ export function About() {
         </motion.div>
 
         <div className="about-grid">
+          <Tilt max={4} scale={1.005} className="tilt-full">
           <motion.article
-            className="about-manifesto"
+            className="about-manifesto tilt-inner-full"
             initial={{ opacity: 0, x: -24 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.25 }}
             transition={{ duration: 0.65 }}
           >
+            <div className="about-manifesto__person">
+              <motion.img
+                src={profile.photo}
+                alt={profile.photoAlt}
+                width={1502}
+                height={1600}
+                loading="lazy"
+                className="about-manifesto__photo"
+                initial={{ scale: 1.18, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+              />
+              <div>
+                <strong>{profile.name}</strong>
+                <span>AI/ML Engineer · Full-Stack Builder</span>
+                <span className="about-manifesto__avail"><i aria-hidden="true" /> Open to hire — referrals welcome</span>
+              </div>
+            </div>
             <span className="about-manifesto__label">My builder philosophy</span>
             <h3>Understand the math.<br />Design the system.<br /><em>Ship the product.</em></h3>
             <div className="about-manifesto__footer">
-              <span className="about-monogram">AS</span>
+              <img src={profile.photo} alt="" width={60} height={60} loading="lazy" className="about-monogram-photo" />
               <p>Build with curiosity.<br />Ship with intent.</p>
             </div>
           </motion.article>
+          </Tilt>
 
           <motion.div
             className="about-story"
@@ -129,6 +154,37 @@ export function About() {
             </div>
           </motion.article>
         </div>
+
+        <motion.ul
+          className="hire-signals"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.09 } } }}
+        >
+          {[
+            { icon: Rocket, title: 'Ships live products', text: 'Availo is on the Play Store — not a demo, a real product with real users.' },
+            { icon: Brain, title: 'Research-grade ML', text: 'Graph ML at 0.850 AUC-ROC with leakage-free evaluation. I understand the math.' },
+            { icon: Workflow, title: 'Systems thinker', text: '9+ low-level designs before code. Architecture first, then execution.' },
+          ].map((signal) => (
+            <motion.li
+              key={signal.title}
+              className="hire-signal"
+              variants={{
+                hidden: { opacity: 0, y: 22 },
+                show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } },
+              }}
+              whileHover={{ y: -5 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            >
+              <span className="hire-signal__icon"><signal.icon size={19} aria-hidden="true" /></span>
+              <div>
+                <h3>Why hire me — {signal.title}</h3>
+                <p>{signal.text}</p>
+              </div>
+            </motion.li>
+          ))}
+        </motion.ul>
 
         <div className="interests-grid">
           {interests.map((interest, index) => (

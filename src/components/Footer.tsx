@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { ArrowUp, BookOpen, Github, Linkedin, Youtube } from 'lucide-react';
 import { profile } from '../lib/data';
 
@@ -15,10 +16,10 @@ export function Footer() {
         <div className="footer-top">
           <div>
             <a href="#home" className="site-logo" aria-label="Back to top">
-              <span className="site-logo__mark">AS</span>
+              <img src={profile.photo} alt="" width={36} height={36} loading="lazy" className="footer-avatar" />
               <span className="site-logo__text">ABHINAV<span>/</span></span>
             </a>
-            <p>Building intelligent systems for the real world.</p>
+            <p>Building intelligent systems for the real world. Open to hire — say hello.</p>
           </div>
           <div className="footer-socials">
             {footerLinks.map((link) => (
@@ -29,7 +30,16 @@ export function Footer() {
             ))}
           </div>
         </div>
-        <div className="footer-wordmark" aria-hidden="true">ABHINAV</div>
+        <motion.div
+          className="footer-wordmark"
+          aria-hidden="true"
+          initial={{ opacity: 0, y: 44 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.35 }}
+          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+        >
+          ABHINAV
+        </motion.div>
         <div className="footer-bottom">
           <p>© {new Date().getFullYear()} {profile.fullName}. Built with React &amp; TypeScript.</p>
           <a href="#home">Back to top <ArrowUp size={14} /></a>

@@ -1,6 +1,8 @@
 export const profile = {
   name: 'Abhinav Shivkumar',
   fullName: 'Abhinav Shivkumar Ovhal',
+  photo: '/my_photo.jpeg',
+  photoAlt: 'Portrait of Abhinav Shivkumar, AI/ML engineer and full-stack builder',
   email: 'abhinavshivkumar03@gmail.com',
   resume: '/Abhinav_Shivkumar_Resume.pdf',
   github: 'https://github.com/Abhi8149',

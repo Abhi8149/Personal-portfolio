@@ -9,12 +9,16 @@ import { AISection } from './components/AISection';
 import { Systems } from './components/Systems';
 import { Connect } from './components/Connect';
 import { Footer } from './components/Footer';
+import { Cursor } from './components/fx/interactive';
+import { CommandPalette } from './components/fx/CommandPalette';
 
 function App() {
   return (
     <MotionConfig reducedMotion="user">
       <div className="app-shell">
         <a href="#main-content" className="skip-link">Skip to main content</a>
+        <Cursor />
+        <CommandPalette />
         <NeuralBackground />
         <Navigation />
         <main id="main-content" className="relative z-10" tabIndex={-1}>
